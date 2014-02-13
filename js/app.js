@@ -108,5 +108,5 @@ var app = (function(Backbone,$,_,Request,pages){
 
 	$(pagesMenuContainerId).replaceWith(vw.render().$el);
 
-})(Backbone,$,_,MockRequest,pageList);
+})(Backbone,$,_,Request,pageList);
 
