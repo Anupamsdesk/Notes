@@ -25,7 +25,6 @@ var MockRequest = (function($){
 })($);
 
 
-
 var Views = {};
 Views.DropDownListView = Backbone.View.extend({
 	tagName: 'ul',
@@ -64,8 +63,6 @@ Views.DropDownListItemView = Backbone.View.extend({
 		return this;
 	}
 });
-
-
 
 
 var pageList = [
