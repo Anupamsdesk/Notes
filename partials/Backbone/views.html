@@ -1,0 +1,194 @@
+<div class='row'>
+		<div class='col-xs-5'>
+			A View is a glue between the model and the document. Views often handle:
+			<ul>
+				<li>Model Change Events</li>
+				<li>DOM Events</li>
+			</ul>
+			<b>Views ->Depend On -> Models <br/>
+				Views ->Depend On -> DOM
+			</b>
+			<p>
+				We define View types by extending from Backbone.View.
+				We can also create inheritance hierarchy as in case of Backbone.Model. Every view maps to exactly 1 DOM element, that may or may not have been added to the Document.
+			</p>
+			<p>
+				All views have an associated DOM element at all times: (.el) This element is either passed to the views constructor or is created by view
+			<p>
+				Some Views Create New DOM Elements. The new element is defined by tagName, id, className and attributes. <br/>
+				Sometimes Views attach to an existing DOM element.
+			</p>
+
+		</div> 
+		<div class='col-xs-4'>
+			<pre class='prettyprint pre pre-scrollable codeblock'>
+var V = Backbone.View.extend({
+    tagName: 'li',
+    id: 'thing',
+    className: 'active',
+    attributes: {
+        'data-value': 12345
+    }
+});
+var v = new V();
+ 
+$('body').prepend(v.el);
+			</pre>
+			<pre class='prettyprint pre pre-scrollable codeblock'>
+(function () {
+    'use strict';
+    var V = Backbone.View.extend({});
+    var v = new V({ el: '#test' });
+ 
+    v.$el.text('hello');
+    v.$el.css('background-color', 'CornFlowerBlue');
+ 
+})();
+var view = new Backbone.View();
+			</pre>
+		</div>
+	</div><!-- end of row -->
+
+	<div class='row'>
+		<div class='col-xs-5'>
+			<h3>Passing Model to View</h3>
+			We can pass the model to the view constructor.
+			<p>
+			The following properties, if passed to the views constructor will be copied to the View Object:
+			model, collection, el, id, className, tagName, attributes 
+			</p>	
+		</div>
+		<div class='col-xs-4'>
+			<pre class='prettyprint pre pre-scrollable codeblock'>
+var VehicleListView = Backbone.View.extend({});
+var myView = new VehicleListView({
+    model: myModelObject
+});
+			</pre>
+		</div>
+	</div><!-- end of row -->
+	<div class='row'>
+		<div class='col-xs-5'>
+			<h3>el and $el</h3>
+			el: refers to the views DOM element. The el property can be passed into the View while constructing, in this case the value of el is a valid jQuery selector.
+			$el is a cached jQuery Object wrapper around the el element.
+			Within a view, this.$ is the jQuery function scoped to the current view:
+			<code>
+			this.$('selector')</code> is identical to <code> this.$el.find('selector')</code>
+
+			<h3>render()</h3>
+			It renders the views DOM element to the browser usually based on the views model data. The default operation is a no-op. You must provide this with your own view definitions. One should return this (by convention) so that its easier to chain method calls.
+			<p>
+				Usually an event handler is attached to the models change event and the views render() method 	is called whenever that ‘change’ event is triggered.
+			</p>
+			<p>One model can provide data for many views. All the views can be updated when the model changes.</p>
+		</div>
+		<div class='col-xs-4'>
+			<pre class='prettyprint pre pre-scrollable codeblock'>
+var V = Backbone.View.extend({
+    render: function(){
+        this.$el.html('some content');
+        return this;
+    }
+});
+
+
+var v = new MyView({
+    model: myModel
+});
+ 
+myModel.on('change', function() {
+    $('body').append(v.render().el);
+});
+			</pre>
+		</div>
+	</div><!-- end of row -->
+
+
+
+
+	<div class='row'>
+		<div class='col-xs-5'>
+			<h3>make()</h3>
+			It is a helpful function while creating DOM elements.
+		</div>
+		<div class='col-xs-4'>
+			<pre class='prettyprint pre pre-scrollable codeblock'>
+var el = new Backbone.Make(
+	‘h3’,
+	{
+		class: ‘not-very-important active’
+	},
+	‘Preliminary Version'
+);
+<span class='comment'>//The above code generates the following:</span>
+&lt;h3 class='not-very-important active' &gt; Preliminary Version &lt;/h3 &gt;
+			</pre>
+		</div>
+	</div><!-- end of row -->
+
+
+	<div class='row'>
+		<div class='col-xs-5'>
+			<h3>remove()</h3>
+			Removes the views element from the DOM. It is equivalent to calling: 
+			<code>$el.remove();</code><br/>
+			Calling remove() when a view is no longer required helps in preventing memory leaks.
+		</div>
+		<div class='col-xs-4'>
+			<pre class='prettyprint pre pre-scrollable codeblock'>
+var h = new Backbone.Model({
+    content: 'Historical context'
+});
+    
+var HeadingView = Backbone.View.extend({
+    tagName: 'p',
+    render: function(){
+        this.$el.html(this.model.get('content'));
+        return this;
+    }
+});
+    
+var v = new HeadingView({model: h});
+$('#test').append(v.render().el);
+<span class='comment'>//Remove after 1 s</span>
+setTimeout(function(){
+    v.remove();
+},1000);
+			</pre>
+		</div>
+	</div><!-- end of row -->
+
+
+	<div class='row'>
+		<div class='col-xs-5'>
+			<h3>Events</h3>
+			Register DOM event handlers on Views.
+
+			<h3>View Guidelines</h3>
+			<ul>
+				<li> Views should render self-contained DOM elements only</li>
+				<li> Do not attach to existing elements other than what is passed to the constructor</li>
+				<li> Do not access DOM elements the view does not own </li>
+				<li>Pass el to the constructor of self-updating view</li>
+			</ul>
+		</div>
+		<div class='col-xs-4'>
+			<pre class='prettyprint pre pre-scrollable codeblock'>
+var FormView = Backbone.View.extend({
+	events: {
+	<span class='comment'>//format: event-name    css-selector : handler</span>
+	<span class="comment">//only .clickable will have click</span>
+	'click .clickable' : 'handleClick',
+	<span class='comment'>//all elements change</span>
+	'change' : 'handleChange'
+	},
+	handleClick: function(){}
+});
+
+<span class='comment'>//the above is equivalent to </span>
+this.$('.clickable').click(handleClick);
+			</pre>
+		</div>
+	</div><!-- end of row -->
+</div>

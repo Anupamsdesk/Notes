@@ -1,6 +1,6 @@
 //app.js
 var Request = (function($){
-	var makeRequest = function(url,cb){
+	var makeRequest = function(url,cb,args){
 		$.ajax({
 			url: url,
 			method: 'GET',
@@ -8,7 +8,7 @@ var Request = (function($){
             async: false,
 			success: function(data){
 				console.log('succeeded!');		
-				cb(null, data);
+				cb(null, data, args);
 			},
 			failure: function(err){
 				cb(err,null);
@@ -67,34 +67,39 @@ Views.DropDownListItemView = Backbone.View.extend({
 
 var pageList = [
 	{
-		title: 'backbone',
+		title: 'Backbone',
 		file: 'backbone.html'
 	},
 	{
-		title: 'angular',
+		title: 'Angular',
 		file: 'angular.html'
-	}
+	},
+	{
+		title: 'Grunt',
+		file: 'grunt.html'
+	},
 ];
 
 
 var app = (function(Backbone,$,_,Request,pages){	
 	var partialsPath = 'partials/backbone.html';
 	var containerId = '#subContent';
-	var render = function(err,data){
+	var render = function(err,data,cId){
 		if (err) {
 			console.log('Some error occured '+ err);
 			return;
 		}
-		$(containerId).html(data);
+		$(cId).html(data);
 	}
 	Request(partialsPath, render);
+	//Request("partials/backbone/models.html", render, '#models');
 	
 	var clickHandler = function(evt){
 		var elem = evt.currentTarget;
 		var url = elem.getAttribute('data-key');
 		console.log(url);
 		var url = 'partials/'+url;
-		Request(url,render);
+		Request(url,render,containerId);
 
 	}
 	var pagesMenuContainerId = '#pagesMenu';
@@ -104,6 +109,14 @@ var app = (function(Backbone,$,_,Request,pages){
 	vw.clickHandler = clickHandler;
 
 	$(pagesMenuContainerId).replaceWith(vw.render().$el);
+
+
+	return{
+		loadPage: function(url,containerId){
+			url = 'partials/'+ url;
+			Request(url, render, containerId);
+		}
+	}
 
 })(Backbone,$,_,Request,pageList);
 

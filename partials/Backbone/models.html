@@ -1,0 +1,291 @@
+<div class='row'>
+	<div class='col-xs-5'>
+		<h3>Backbone Models</h3>
+		Derives from the Backbone.Model class.
+	</div>
+<div class='col-xs-4'>
+<pre class='prettyprint pre pre-scrollable codeblock'>
+var book = new Backbone.Model({'title': 'The Jungle Book'});
+</pre>
+</div>
+</div>
+
+<div class='row'>
+	<div class='col-xs-5'>
+<h3>toJSON()</h3>
+Inorder to get a plain JSON object you can call the toJSON() method on it:
+</div>
+<div class='col-xs-4'>
+<pre class='prettyprint pre pre-scrollable codeblock'>
+var bookBB = new Backbone.Model({'title': 'The Jungle Book'}); 
+<span class='comment'>//toJSON() returns a plain JSON object</span>
+var bookjson = bookBB.toJSON();
+</pre>
+</div>
+</div>
+
+
+<div class='row'>
+	<div class='col-xs-5'>
+		<h3>Setting Default Attribute Value</h3>		 
+		The <b>defaults</b> property specifies default values for attributes that are not specified in the constructor.
+	</div>
+	<div class='col-xs-4'>
+<pre class='pre codeblock pre-scrollable'>
+var Vehicle = Backbone.Model.extend({
+	defaults: {
+		'color': 'white',
+		'type': 'car'
+	},
+	dump: function () {
+		console.log(this.toJSON());
+	}
+});
+
+var ford1 = new Vehicle();
+ford1.dump();
+var ford2 = new Vehicle({ 'color': 'red' });
+ford2.dump();
+
+</pre>
+	</div>
+</div>
+
+
+<div class='row'>
+	<div class='col-xs-5'>
+
+<h3>get(), set() and escape()</h3>		 
+You can get and set attributes of a model by using the get() and set() methods.
+The escape() method is like <q>get</q> except that the output is html escaped.<br/>
+</div>
+<div class='col-xs-4'>
+<pre class='pre codeblock pre-scrollable'>
+<span class='comment'>//reading using get() </span>
+var readTitle = book.get('title');
+<span class='comment'>//writing using set();</span>
+book.set('author', 'Rudyard Kipling');
+</pre>
+</div>
+</div>
+
+<div class='row'>
+	<div class='col-xs-5'>
+<h3>has()</h3>		 
+It is a predicate method used to check whether an attribute is defined in the model or not.
+</div>
+<div class='col-xs-4'>
+<pre class='pre codeblock pre-scrollable'>
+console.log ( ford.has('type') );  <span class='comment'>true if ford has <q>type</q> attribute</span>
+</pre>
+</div>
+</div>
+
+
+<div class='row'>
+<div class='col-xs-5'>
+<h3>initialize()</h3>
+A Backbone model has a special method called <q>initialize</q> which is automatically
+invoked when the model is instantiated.
+</div>
+<div class='col-xs-4'>
+<pre class='prettyprint pre pre-scrollable codeblock'>
+(function () {
+    'use strict';
+    var A = Backbone.Model.extend({
+        <b>initialize</b>: function () {
+            console.log('Init A');
+        },
+        asString: function () {
+            return JSON.stringify
+            (this.toJSON());
+        }
+    });
+
+    var a = new A({
+        one: 1,
+        two: 2
+    });
+    console.log("asstring: " + a.asString());
+
+    var B = A.extend({});
+    var b = new B({ three: 3 });
+
+    console.log('asstring: ' + b.asString());
+    console.log(b instanceof B); <span class='comment'>//true</span>
+    console.log(b instanceof A); <span class='comment'>//true</span>
+    console.log(b instanceof Backbone.Model); <span class='comment'>//true</span>
+    console.log(a instanceof B); <span class='comment'>//false</span>
+})();
+</pre>
+</div>
+</div>
+
+<div class='row'>
+<div class='col-xs-5'>
+<h3>Model Events</h3>
+
+Models raise events when their state changes (using set). To detect change to a model listen to 
+the <q>change</q> event.
+</div>
+<div class='col-xs-4'>
+<pre class='prettyprint pre pre-scrollable codeblock'>
+var v = new Vehicle();
+<span class='comment'>//listen to model change</span>
+v.<b>on</b>('<b>change</b>', function(){
+    console.log('Model changed!!');
+});
+
+<span class='comment'>//listen to a particular attribute of the model</span>
+v.<b>on</b>('<b>change:attributeName</b>', function () {
+    <span class='comment'>//event namespacing > change:attributeName</span>
+    <span class='comment'>//Gets triggered when the attributeName is changed</span>
+});
+</pre>
+</div>
+</div>
+
+
+<div class='row'>
+<div class='col-xs-5'>
+<h3>Custom Model Events</h3>
+<ul>
+	<li>It is possible to define, trigger and observe custom model events.</li>
+	<li>Events are identified by string identifiers.</li>
+	<li>Use the trigger() method to trigger an event.</li>
+	<li>To register an event handler use the on(<q>event</q>) method.</li>
+	<li>To unregister all eventhandlers to an event use off(<q>event-name</q>) method.</li>
+</ul>
+</div>
+<div class='col-xs-4'>
+<pre class='prettyprint pre pre-scrollable codeblock'>
+<span class='comment'>//trigger the retired event of ford object</span>
+ford.trigger('retired');
+
+(function(){
+    'use strict';
+    var volcano = _.extend({},Backbone.Events);
+	volcano.on('disaster:eruption', function(){
+		console.log('disaster eruption occured');
+    });
+    volcano.disaster = 10;
+
+    volcano.afunc = function (a){
+        if (!a) volcano.trigger('disaster:eruption');
+        else {
+            this.disaster = a;
+            console.log('afunc called with : '+a);
+        }
+    };
+
+    volcano.afunc(20);
+    volcano.afunc(10);
+    volcano.afunc();<span class='comment'>//this causes disaster:eruption event to be fired</span>
+
+    volcano.off('disaster:eruption');
+    volcano.afunc();<span class='comment'>//this will have no event handler to handle it</span>
+
+})();
+
+</pre>
+</div>
+</div>
+
+<div class='row'>
+<div class='col-xs-5'>
+<h3>Model Identity: id and cid</h3>
+
+The <q>id</q> property represents the model's persistent identity. 
+It is undefined until the model is saved. When the model is saved the id property is set to the service identifier for the model object.
+The <q>cid</q> property is a temporary identifier used until a model is assigned its id.
+
+The model has a isNew() method which says whether the model is saved at server and has an id property.
+
+</div>
+<div class='col-xs-4'>
+<pre class='prettyprint pre pre-scrollable codeblock'>
+var ford = new Vehicle();
+
+ford.id <span class='comment'>// this is undefined</span>
+
+(function () {
+    'use strict';
+    var ford = new Backbone.Model({});
+    console.log('id: ' + <b>ford.id</b>);            <span class='comment'>//undefined</span>
+    console.log('cid: ' + <b>ford.cid</b>);          <span class='comment'>//c1</span>
+    console.log('isNew(): ' + <b>ford.isNew()</b>);  <span class='comment'>//true</span>
+})();
+</pre>
+</div>
+</div>
+
+
+
+<div class='row'>
+	<div class='col-xs-5'>
+		<h3>Model Validation</h3>		 
+		
+		Backbone exposes model validity through 2 methods:
+		<ol>
+			<li> Validate()  method used to test the models validity and return error if not valid</li>
+			<li> isValid  returns true or false based on validate()</li>
+		</ol>
+		<b>validate()</b> is called by backbone prior to performing set() or save() operations.
+		Backbone.js now requires the (validate: true) option to be passed with <q>set</q> to trigger 
+		validation.
+	</div>
+	<div class='col-xs-4'>
+<pre class='pre codeblock pre-scrollable'>
+(function () {
+   'use strict';
+    var Vehicle = Backbone.Model.extend({
+	<b>validate</b>: function (attrs) {
+		console.log('validate called: attrs');
+		console.log(attrs);
+		var validTypes = ['car', 'truck'];
+		if (attrs.type) {
+			var t = attrs.type.toLowerCase();
+			if (!_(validTypes).include(t)) {
+				<b>this.trigger</b>('invalid'
+					, this
+					, "error: type can be car or truck only");
+				<b>return false;</b>
+			}
+		}
+		<b>return true</b>;
+	},
+	dump: function () {
+		console.log('dump: ');
+		console.log(this.toJSON());
+	}
+	});
+	var ford1 = new Vehicle();
+	ford1.<b>on</b>('invalid', function (model, error) {
+		console.log("Got error!" + error);
+	});
+	ford1.<b>set</b>('color', 'red', { validate: true });
+	ford1.dump();
+	ford1.<b>set</b>('type', 'bus', { validate: true });
+})();
+</pre>
+	</div>
+</div>
+
+
+<div class='row'>
+	<div class='col-xs-5'>
+		<h3>Server Synchronization</h3>		 
+		Models have save, fetch and destroy methods to synchronise with the server
+		<ul>
+			<li>
+				Save performs insert/update operations depending upon the state of the model.
+			</li>
+			<li>Fetch updates the model with the server side state</li>
+			<li>Destroy deletes the model from server.</li>
+		</ul>
+		
+	</div>
+	<div class='col-xs-5'>
+
+	</div>
+</div>
